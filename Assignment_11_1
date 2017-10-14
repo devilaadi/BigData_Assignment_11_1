@@ -1,0 +1,88 @@
+--CREATE employee table in mysql
+
+CREATE TABLE emp (name varchar(20),tech varchar(20));
+
+
+--Inserting value in employee table
+
+INSERT INTO emp values ('Adi','Big Data');
+INSERT INTO emp values ('rahul','Java');
+INSERT INTO emp values ('ben','.net');
+
+--SQOOP IMPORT TO HDFS 
+
+OUTPUT DIRECTORY FOR OUR FILES : /user/cloudera
+
+sqoop import \
+--connect jdbc:mysql://localhost/acadgild \
+--username root \
+--password cloudera \
+--table emp \
+--m 1
+
+--CREATING TABLE FOR EXPORTING DATA
+
+CREATE TABLE expEmp (name varchar(20),tech varchar(20));
+
+--EXPORTING DATA FROM HDFS TO NEW CREATED EXPORT TABLE
+
+sqoop export \
+--connect jdbc:mysql://localhost/acadgild  \
+--username root \
+--password cloudera \
+--table expEmp \
+--m 1 \
+--export-dir /user/cloudera/emp
+
+--Transfer data between Mysql and Hive (Import and Export only selected columns) using Sqoop.
+
+--CREATING NEW TABLE
+
+CREATE TABLE employee (id int,name varchar(20),tech varchar(20));
+
+INSERT INTO employee values (1,'Adi','Big Data');
+INSERT INTO employee values (2,'Rahul','Java');
+INSERT INTO employee values (3,'Ash','.net');
+INSERT INTO employee values (4,'Ben','C#');
+INSERT INTO employee values (5,'Ken','net');
+
+--EXPORTING DATA FROM MYSQL TO HIVE USIN FEW COLUMNS
+
+--USING HIVE acadgild database
+
+
+sqoop import \
+--connect jdbc:mysql://localhost/acadgild  \
+--username root \
+--password cloudera \
+--table employee \
+--split-by id \
+--columns id,name \
+--fields-terminated-by "," \
+--target-dir /user/cloudera/employee \
+--hive-import \
+--create-hive-table \
+--hive-table acadgild.employees \
+--m 1
+
+
+
+
+--SQOOP EXPORT FROM HIVE TO MYSQL
+
+--CREATE TABLE IN MYSQL
+
+CREATE TABLE employee_exp (id int,name varchar(20));
+
+--EXPORTING THE DATA
+
+sqoop export \
+--connect jdbc:mysql://localhost/acadgild  \
+--username root \
+--password cloudera \
+--table employee_exp \
+--columns id,name \
+--export-dir /user/hive/warehouse/acadgild.db/temp
+
+
+
